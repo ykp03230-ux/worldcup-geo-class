@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>지리+월드컵 퀴즈 · 월드컵의 모든 것 v30</title>
+  <style>
+    :root{
+      --bg1:#eaf7f1; --bg2:#fff8ed; --panel:#ffffff; --ink:#102033; --muted:#5f6b7a;
+      --line:rgba(16,32,51,.15); --blue:#123c69; --sky:#00a6b2; --green:#159447;
+      --orange:#f4a51c; --red:#d72638; --purple:#6d28d9; --shadow:0 20px 50px rgba(10,31,68,.16);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+      color:var(--ink);min-height:100vh;
+      background:
+        radial-gradient(circle at 12% 10%,rgba(215,38,56,.18),transparent 28%),
+        radial-gradient(circle at 82% 8%,rgba(0,166,178,.18),transparent 30%),
+        radial-gradient(circle at 58% 0%,rgba(244,165,28,.16),transparent 26%),
+        linear-gradient(180deg,#fff8ed 0%,#eaf7f1 46%,#e7f0ff 100%);
+    }
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.42;background:linear-gradient(115deg,transparent 0 42%,rgba(255,255,255,.38) 42% 43%,transparent 43% 100%),linear-gradient(65deg,transparent 0 55%,rgba(255,255,255,.24) 55% 56%,transparent 56% 100%)}
+    header{max-width:1380px;margin:0 auto;padding:24px 28px 10px;display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
+    h1{margin:0;font-size:clamp(30px,4.6vw,56px);line-height:1.04;letter-spacing:-.055em;background:linear-gradient(100deg,#123c69 0%,#d72638 36%,#159447 68%,#f4a51c 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .title p{margin:10px 0 0;color:var(--muted);font-weight:800;font-size:15px}
+    .page-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .page-link{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(18,60,105,.18);background:#fff;color:#123c69;border-radius:999px;padding:10px 14px;text-decoration:none;font-weight:950;font-size:14px;box-shadow:0 8px 20px rgba(18,60,105,.08)}
+    .page-link.primary{background:linear-gradient(135deg,#123c69 0%,#d72638 48%,#159447 100%);color:#fff;border-color:transparent}
+    .top-badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .pill{border:1px solid rgba(18,60,105,.15);background:rgba(255,255,255,.78);border-radius:999px;padding:9px 13px;font-size:13px;color:#243b63;box-shadow:0 8px 22px rgba(18,60,105,.08);font-weight:850}
+    main{max-width:1380px;margin:0 auto;padding:16px 24px 34px;display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px}
+    .panel{background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.78);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    .side{padding:18px;align-self:start}
+    .quiz-zone{padding:22px}
+    .section-title{font-weight:950;margin:0 0 12px;font-size:17px;letter-spacing:-.03em}
+    .goal{padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(18,60,105,.08),rgba(21,148,71,.08));border:1px solid rgba(18,60,105,.12);line-height:1.55;font-size:14px;color:#334155}
+    .help-box{margin-top:12px;padding:14px;border-radius:18px;background:#fff7e2;border:1px solid rgba(244,165,28,.28);font-size:13px;line-height:1.55;color:#53420c}
+    .continent-list{display:grid;gap:8px;margin-top:14px}
+    .continent-chip{width:100%;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);background:#fff;border-radius:16px;padding:11px 12px;font-weight:900;color:var(--ink);cursor:pointer}
+    .continent-chip.active{background:linear-gradient(135deg,#123c69,#00a6b2);color:#fff;border-color:transparent}
+    .arrow{font-size:13px;opacity:.72}
+    .mission{margin-top:14px;padding:14px;border-radius:18px;border:1px dashed rgba(18,60,105,.25);font-size:13px;line-height:1.55;color:#475569;background:rgba(255,255,255,.7)}
+    .scorebar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .score{padding:14px;border-radius:18px;border:1px solid rgba(18,60,105,.1);background:#fff;box-shadow:0 8px 18px rgba(18,60,105,.06)}
+    .score b{display:block;font-size:28px;color:#123c69}
+    .score span{font-size:12px;color:var(--muted);font-weight:800}
+    .question-card{padding:22px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,.86));border:1px solid rgba(18,60,105,.12)}
+    .q-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .tag{border-radius:999px;background:#eef6ff;color:#123c69;border:1px solid rgba(18,60,105,.12);padding:6px 10px;font-size:12px;font-weight:950}
+    .tag.red{background:#fff0f1;color:#d72638}.tag.green{background:#effaf3;color:#159447}.tag.gold{background:#fff7e2;color:#a16207}.tag.purple{background:#f5f3ff;color:#6d28d9}
+    .question{font-size:clamp(24px,3.2vw,38px);line-height:1.18;font-weight:1000;letter-spacing:-.045em;margin:0 0 16px}
+    .subhelp{font-size:14px;color:#64748b;line-height:1.55;margin:-4px 0 16px}
+    .flag-prompt{display:flex;align-items:center;justify-content:center;margin:4px 0 18px}
+    .flag-prompt img{width:min(230px,70vw);height:auto;border-radius:16px;border:1px solid rgba(18,60,105,.16);box-shadow:0 16px 34px rgba(18,60,105,.16);background:#fff}
+    .flag-prompt .emoji-fallback{font-size:86px;line-height:1}
+    .options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .option{border:1px solid rgba(18,60,105,.15);background:#fff;border-radius:18px;padding:16px;text-align:left;font-size:17px;font-weight:950;color:#102033;cursor:pointer;transition:.15s ease;min-height:64px}
+    .option:hover{transform:translateY(-1px);border-color:#00a6b2}
+    .option.correct{background:#ecfdf3;border-color:#159447;color:#14532d}
+    .option.wrong{background:#fff0f1;border-color:#d72638;color:#7f1d1d}
+    .flag-choice{display:flex;align-items:center;justify-content:center;gap:10px;min-height:70px}
+    .flag-choice img{width:88px;max-height:58px;object-fit:contain;border-radius:9px;border:1px solid rgba(18,60,105,.14);background:#fff;box-shadow:0 8px 18px rgba(18,60,105,.09)}
+    .flag-choice .emoji-fallback{font-size:48px;line-height:1}
+    .feedback{min-height:60px;margin-top:14px;padding:14px;border-radius:18px;background:#f8fafc;border:1px solid rgba(18,60,105,.1);font-size:15px;line-height:1.55;color:#334155}
+    .quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button.action{border:0;background:linear-gradient(135deg,#123c69,#d72638);color:#fff;border-radius:999px;padding:12px 16px;font-weight:950;cursor:pointer;font-family:inherit}
+    button.action.secondary{background:#fff;color:#123c69;border:1px solid rgba(18,60,105,.18)}
+    button.action.sound-off{background:#fff0f1;color:#d72638;border:1px solid rgba(215,38,56,.22)}
+    .explore-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+    .explore-card{padding:14px;border-radius:18px;background:rgba(255,255,255,.86);border:1px solid rgba(18,60,105,.1);font-size:13px;line-height:1.5}
+    .explore-card b{display:block;font-size:15px;margin-bottom:6px}
+    @media(max-width:960px){main{grid-template-columns:1fr}.options{grid-template-columns:1fr}.explore-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:640px){header,main{padding-left:16px;padding-right:16px}.scorebar{grid-template-columns:1fr}.explore-grid{grid-template-columns:1fr}.flag-prompt img{width:min(210px,82vw)}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="title">
+    <h1>지리+월드컵 퀴즈<br/>대륙·국기·위도 탐구</h1>
+    <p>월드컵 참가국을 대륙, 수도, 국기, 적도와 위도 개념으로 살펴보는 사회 수업용 퀴즈 페이지</p>
+    <div class="page-actions">
+      <a class="page-link primary" href="index.html">세계지도 앱으로 돌아가기</a>
+      <a class="page-link" href="records.html">월드컵 기록관</a>
+    </div>
+  </div>
+  <div class="top-badges">
+    <span class="pill">대륙 분류</span><span class="pill">국기 탐구 강화</span><span class="pill">북반구·남반구</span><span class="pill">수도와 위치</span>
+  </div>
+</header>
+
+<main>
+  <aside class="panel side">
+    <p class="section-title">수업 목표</p>
+    <div class="goal">
+      월드컵 참가국을 대륙별로 나누고, 국기·수도·위도 정보를 연결해 세계 여러 지역의 특징을 탐구합니다.
+    </div>
+    <div class="help-box">
+      <strong>개념 도움말</strong><br/>
+      적도는 지구를 북쪽과 남쪽으로 나누는 위도 0°의 가상선입니다. 적도보다 북쪽은 북반구, 남쪽은 남반구라고 합니다. 이 퀴즈에서는 각 나라의 수도 위치를 기준으로 판단합니다.
+    </div>
+    <p class="section-title" style="margin-top:18px">대륙별 집중 탐구</p>
+    <div class="continent-list" id="continentList"></div>
+    <div class="mission" id="missionBox">대륙을 선택하면 해당 대륙 참가국 중심으로 문제가 나옵니다. 대륙 분류와 같은 대륙 국가 찾기 문제가 조금 더 자주 나옵니다.</div>
+  </aside>
+
+  <section class="panel quiz-zone">
+    <div class="scorebar">
+      <div class="score"><b id="scoreCorrect">0</b><span>맞힌 문제</span></div>
+      <div class="score"><b id="scoreTotal">0</b><span>푼 문제</span></div>
+      <div class="score"><b id="focusLabel">전체</b><span>탐구 범위</span></div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-meta" id="qMeta"></div>
+      <div id="flagPrompt"></div>
+      <p class="question" id="questionText">문제를 불러오는 중...</p>
+      <div class="subhelp" id="subHelp"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback">정답을 고르면 설명이 나타납니다.</div>
+      <div class="quiz-actions">
+        <button class="action" id="nextBtn">다음 문제</button>
+        <button class="action secondary" id="resetScoreBtn">점수 초기화</button>
+        <button class="action secondary" id="soundToggleBtn" type="button">소리 켜짐</button>
+      </div>
+    </div>
+
+    <div class="explore-grid" id="exploreGrid"></div>
+  </section>
+</main>
+
+<script>
+const countries = [{"id": "MEX", "flag": "🇲🇽", "flagImg": "https://flagcdn.com/mx.svg", "flagAlt": "멕시코 국기", "nameKo": "멕시코", "nameEn": "Mexico", "continent": "북아메리카", "capital": "멕시코시티", "lat": 19.4326, "lng": -99.1332, "group": "A", "badges": ["개최국", "세 번째 개최 경험"]}, {"id": "KOR", "flag": "🇰🇷", "flagImg": "https://flagcdn.com/kr.svg", "flagAlt": "대한민국 국기", "nameKo": "대한민국", "nameEn": "Korea Republic", "continent": "아시아", "capital": "서울", "lat": 37.5665, "lng": 126.978, "group": "A", "badges": ["아시아", "반도 국가"]}, {"id": "RSA", "flag": "🇿🇦", "flagImg": "https://flagcdn.com/za.svg", "flagAlt": "남아프리카공화국 국기", "nameKo": "남아프리카공화국", "nameEn": "South Africa", "continent": "아프리카", "capital": "프리토리아", "lat": -25.7479, "lng": 28.2293, "group": "A", "badges": ["2010 개최국", "아프리카 남단"]}, {"id": "CZE", "flag": "🇨🇿", "flagImg": "https://flagcdn.com/cz.svg", "flagAlt": "체코 국기", "nameKo": "체코", "nameEn": "Czechia", "continent": "유럽", "capital": "프라하", "lat": 50.0755, "lng": 14.4378, "group": "A", "badges": ["내륙국", "중부 유럽"]}, {"id": "CAN", "flag": "🇨🇦", "flagImg": "https://flagcdn.com/ca.svg", "flagAlt": "캐나다 국기", "nameKo": "캐나다", "nameEn": "Canada", "continent": "북아메리카", "capital": "오타와", "lat": 45.4215, "lng": -75.6972, "group": "B", "badges": ["개최국", "넓은 영토"]}, {"id": "BIH", "flag": "🇧🇦", "flagImg": "https://flagcdn.com/ba.svg", "flagAlt": "보스니아 헤르체고비나 국기", "nameKo": "보스니아 헤르체고비나", "nameEn": "Bosnia and Herzegovina", "continent": "유럽", "capital": "사라예보", "lat": 43.8563, "lng": 18.4131, "group": "B", "badges": ["발칸반도", "다민족 국가"]}, {"id": "QAT", "flag": "🇶🇦", "flagImg": "https://flagcdn.com/qa.svg", "flagAlt": "카타르 국기", "nameKo": "카타르", "nameEn": "Qatar", "continent": "아시아", "capital": "도하", "lat": 25.2854, "lng": 51.531, "group": "B", "badges": ["사막 국가", "2022 개최국"]}, {"id": "SUI", "flag": "🇨🇭", "flagImg": "https://flagcdn.com/ch.svg", "flagAlt": "스위스 국기", "nameKo": "스위스", "nameEn": "Switzerland", "continent": "유럽", "capital": "베른", "lat": 46.948, "lng": 7.4474, "group": "B", "badges": ["알프스", "산악 국가"]}, {"id": "BRA", "flag": "🇧🇷", "flagImg": "https://flagcdn.com/br.svg", "flagAlt": "브라질 국기", "nameKo": "브라질", "nameEn": "Brazil", "continent": "남아메리카", "capital": "브라질리아", "lat": -15.7939, "lng": -47.8828, "group": "C", "badges": ["최다 우승", "아마존"]}, {"id": "MAR", "flag": "🇲🇦", "flagImg": "https://flagcdn.com/ma.svg", "flagAlt": "모로코 국기", "nameKo": "모로코", "nameEn": "Morocco", "continent": "아프리카", "capital": "라바트", "lat": 34.0209, "lng": -6.8416, "group": "C", "badges": ["아프리카 4강 경험", "지중해"]}, {"id": "HTI", "flag": "🇭🇹", "flagImg": "https://flagcdn.com/ht.svg", "flagAlt": "아이티 국기", "nameKo": "아이티", "nameEn": "Haiti", "continent": "북아메리카", "capital": "포르토프랭스", "lat": 18.5944, "lng": -72.3074, "group": "C", "badges": ["오랜만의 복귀", "카리브해"]}, {"id": "SCO", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "flagImg": "https://flagcdn.com/gb-sct.svg", "flagAlt": "스코틀랜드 국기", "nameKo": "스코틀랜드", "nameEn": "Scotland", "continent": "유럽", "capital": "에든버러", "lat": 55.9533, "lng": -3.1883, "group": "C", "badges": ["최고령 선수 보유", "오랜만의 복귀"]}, {"id": "USA", "flag": "🇺🇸", "flagImg": "https://flagcdn.com/us.svg", "flagAlt": "미국 국기", "nameKo": "미국", "nameEn": "United States", "continent": "북아메리카", "capital": "워싱턴 D.C.", "lat": 38.9072, "lng": -77.0369, "group": "D", "badges": ["개최국", "대륙 규모"]}, {"id": "PAR", "flag": "🇵🇾", "flagImg": "https://flagcdn.com/py.svg", "flagAlt": "파라과이 국기", "nameKo": "파라과이", "nameEn": "Paraguay", "continent": "남아메리카", "capital": "아순시온", "lat": -25.2637, "lng": -57.5759, "group": "D", "badges": ["내륙국", "남아메리카"]}, {"id": "AUS", "flag": "🇦🇺", "flagImg": "https://flagcdn.com/au.svg", "flagAlt": "오스트레일리아 국기", "nameKo": "오스트레일리아", "nameEn": "Australia", "continent": "오세아니아", "capital": "캔버라", "lat": -35.2809, "lng": 149.13, "group": "D", "badges": ["오세아니아", "남반구"]}, {"id": "TUR", "flag": "🇹🇷", "flagImg": "https://flagcdn.com/tr.svg", "flagAlt": "튀르키예 국기", "nameKo": "튀르키예", "nameEn": "Türkiye", "continent": "유럽", "capital": "앙카라", "lat": 39.9334, "lng": 32.8597, "group": "D", "badges": ["두 대륙 연결", "보스포루스"]}, {"id": "GER", "flag": "🇩🇪", "flagImg": "https://flagcdn.com/de.svg", "flagAlt": "독일 국기", "nameKo": "독일", "nameEn": "Germany", "continent": "유럽", "capital": "베를린", "lat": 52.52, "lng": 13.405, "group": "E", "badges": ["월드컵 우승 경험", "공업 강국"]}, {"id": "CUW", "flag": "🇨🇼", "flagImg": "https://flagcdn.com/cw.svg", "flagAlt": "퀴라소 국기", "nameKo": "퀴라소", "nameEn": "Curaçao", "continent": "북아메리카", "capital": "빌렘스타트", "lat": 12.1696, "lng": -68.99, "group": "E", "badges": ["첫 출전국", "작은 나라의 도전"]}, {"id": "CIV", "flag": "🇨🇮", "flagImg": "https://flagcdn.com/ci.svg", "flagAlt": "코트디부아르 국기", "nameKo": "코트디부아르", "nameEn": "Ivory Coast", "continent": "아프리카", "capital": "야무수크로", "lat": 6.8276, "lng": -5.2893, "group": "E", "badges": ["코끼리 군단", "카카오"]}, {"id": "ECU", "flag": "🇪🇨", "flagImg": "https://flagcdn.com/ec.svg", "flagAlt": "에콰도르 국기", "nameKo": "에콰도르", "nameEn": "Ecuador", "continent": "남아메리카", "capital": "키토", "lat": -0.1807, "lng": -78.4678, "group": "E", "badges": ["적도", "안데스"]}, {"id": "NED", "flag": "🇳🇱", "flagImg": "https://flagcdn.com/nl.svg", "flagAlt": "네덜란드 국기", "nameKo": "네덜란드", "nameEn": "Netherlands", "continent": "유럽", "capital": "암스테르담", "lat": 52.3676, "lng": 4.9041, "group": "F", "badges": ["낮은 땅", "간척지"]}, {"id": "JPN", "flag": "🇯🇵", "flagImg": "https://flagcdn.com/jp.svg", "flagAlt": "일본 국기", "nameKo": "일본", "nameEn": "Japan", "continent": "아시아", "capital": "도쿄", "lat": 35.6762, "lng": 139.6503, "group": "F", "badges": ["섬나라", "월드컵 1000번째 경기"]}, {"id": "SWE", "flag": "🇸🇪", "flagImg": "https://flagcdn.com/se.svg", "flagAlt": "스웨덴 국기", "nameKo": "스웨덴", "nameEn": "Sweden", "continent": "유럽", "capital": "스톡홀름", "lat": 59.3293, "lng": 18.0686, "group": "F", "badges": ["북유럽", "긴 겨울"]}, {"id": "TUN", "flag": "🇹🇳", "flagImg": "https://flagcdn.com/tn.svg", "flagAlt": "튀니지 국기", "nameKo": "튀니지", "nameEn": "Tunisia", "continent": "아프리카", "capital": "튀니스", "lat": 36.8065, "lng": 10.1815, "group": "F", "badges": ["지중해", "북아프리카"]}, {"id": "BEL", "flag": "🇧🇪", "flagImg": "https://flagcdn.com/be.svg", "flagAlt": "벨기에 국기", "nameKo": "벨기에", "nameEn": "Belgium", "continent": "유럽", "capital": "브뤼셀", "lat": 50.8503, "lng": 4.3517, "group": "G", "badges": ["유럽연합", "작은 강국"]}, {"id": "EGY", "flag": "🇪🇬", "flagImg": "https://flagcdn.com/eg.svg", "flagAlt": "이집트 국기", "nameKo": "이집트", "nameEn": "Egypt", "continent": "아프리카", "capital": "카이로", "lat": 30.0444, "lng": 31.2357, "group": "G", "badges": ["나일강", "고대 문명"]}, {"id": "IRI", "flag": "🇮🇷", "flagImg": "https://flagcdn.com/ir.svg", "flagAlt": "이란 국기", "nameKo": "이란", "nameEn": "IR Iran", "continent": "아시아", "capital": "테헤란", "lat": 35.6892, "lng": 51.389, "group": "G", "badges": ["고원 국가", "서아시아"]}, {"id": "NZL", "flag": "🇳🇿", "flagImg": "https://flagcdn.com/nz.svg", "flagAlt": "뉴질랜드 국기", "nameKo": "뉴질랜드", "nameEn": "New Zealand", "continent": "오세아니아", "capital": "웰링턴", "lat": -41.2865, "lng": 174.7762, "group": "G", "badges": ["남반구", "섬나라"]}, {"id": "ESP", "flag": "🇪🇸", "flagImg": "https://flagcdn.com/es.svg", "flagAlt": "스페인 국기", "nameKo": "스페인", "nameEn": "Spain", "continent": "유럽", "capital": "마드리드", "lat": 40.4168, "lng": -3.7038, "group": "H", "badges": ["이베리아반도", "축구 강국"]}, {"id": "CPV", "flag": "🇨🇻", "flagImg": "https://flagcdn.com/cv.svg", "flagAlt": "카보베르데 국기", "nameKo": "카보베르데", "nameEn": "Cape Verde", "continent": "아프리카", "capital": "프라이아", "lat": 14.933, "lng": -23.5133, "group": "H", "badges": ["첫 출전국", "섬나라의 도전"]}, {"id": "KSA", "flag": "🇸🇦", "flagImg": "https://flagcdn.com/sa.svg", "flagAlt": "사우디아라비아 국기", "nameKo": "사우디아라비아", "nameEn": "Saudi Arabia", "continent": "아시아", "capital": "리야드", "lat": 24.7136, "lng": 46.6753, "group": "H", "badges": ["사막 국가", "석유 자원"]}, {"id": "URU", "flag": "🇺🇾", "flagImg": "https://flagcdn.com/uy.svg", "flagAlt": "우루과이 국기", "nameKo": "우루과이", "nameEn": "Uruguay", "continent": "남아메리카", "capital": "몬테비데오", "lat": -34.9011, "lng": -56.1645, "group": "H", "badges": ["초대 우승국", "작은 축구 강국"]}, {"id": "FRA", "flag": "🇫🇷", "flagImg": "https://flagcdn.com/fr.svg", "flagAlt": "프랑스 국기", "nameKo": "프랑스", "nameEn": "France", "continent": "유럽", "capital": "파리", "lat": 48.8566, "lng": 2.3522, "group": "I", "badges": ["추정 몸값 1위권", "월드컵 우승 경험"]}, {"id": "SEN", "flag": "🇸🇳", "flagImg": "https://flagcdn.com/sn.svg", "flagAlt": "세네갈 국기", "nameKo": "세네갈", "nameEn": "Senegal", "continent": "아프리카", "capital": "다카르", "lat": 14.7167, "lng": -17.4677, "group": "I", "badges": ["서아프리카", "대서양 연안"]}, {"id": "IRQ", "flag": "🇮🇶", "flagImg": "https://flagcdn.com/iq.svg", "flagAlt": "이라크 국기", "nameKo": "이라크", "nameEn": "Iraq", "continent": "아시아", "capital": "바그다드", "lat": 33.3152, "lng": 44.3661, "group": "I", "badges": ["오랜만의 복귀", "메소포타미아"]}, {"id": "NOR", "flag": "🇳🇴", "flagImg": "https://flagcdn.com/no.svg", "flagAlt": "노르웨이 국기", "nameKo": "노르웨이", "nameEn": "Norway", "continent": "유럽", "capital": "오슬로", "lat": 59.9139, "lng": 10.7522, "group": "I", "badges": ["피오르", "오랜만의 복귀"]}, {"id": "ARG", "flag": "🇦🇷", "flagImg": "https://flagcdn.com/ar.svg", "flagAlt": "아르헨티나 국기", "nameKo": "아르헨티나", "nameEn": "Argentina", "continent": "남아메리카", "capital": "부에노스아이레스", "lat": -34.6037, "lng": -58.3816, "group": "J", "badges": ["디펜딩 챔피언", "팜파스"]}, {"id": "DZA", "flag": "🇩🇿", "flagImg": "https://flagcdn.com/dz.svg", "flagAlt": "알제리 국기", "nameKo": "알제리", "nameEn": "Algeria", "continent": "아프리카", "capital": "알제", "lat": 36.7538, "lng": 3.0588, "group": "J", "badges": ["사하라", "북아프리카"]}, {"id": "AUT", "flag": "🇦🇹", "flagImg": "https://flagcdn.com/at.svg", "flagAlt": "오스트리아 국기", "nameKo": "오스트리아", "nameEn": "Austria", "continent": "유럽", "capital": "빈", "lat": 48.2082, "lng": 16.3738, "group": "J", "badges": ["알프스", "내륙국"]}, {"id": "JOR", "flag": "🇯🇴", "flagImg": "https://flagcdn.com/jo.svg", "flagAlt": "요르단 국기", "nameKo": "요르단", "nameEn": "Jordan", "continent": "아시아", "capital": "암만", "lat": 31.9539, "lng": 35.9106, "group": "J", "badges": ["첫 출전국", "사해"]}, {"id": "POR", "flag": "🇵🇹", "flagImg": "https://flagcdn.com/pt.svg", "flagAlt": "포르투갈 국기", "nameKo": "포르투갈", "nameEn": "Portugal", "continent": "유럽", "capital": "리스본", "lat": 38.7223, "lng": -9.1393, "group": "K", "badges": ["호날두 6번째 월드컵", "해양 국가"]}, {"id": "COD", "flag": "🇨🇩", "flagImg": "https://flagcdn.com/cd.svg", "flagAlt": "콩고민주공화국 국기", "nameKo": "콩고민주공화국", "nameEn": "DR Congo", "continent": "아프리카", "capital": "킨샤사", "lat": -4.4419, "lng": 15.2663, "group": "K", "badges": ["오랜만의 복귀", "콩고강"]}, {"id": "UZB", "flag": "🇺🇿", "flagImg": "https://flagcdn.com/uz.svg", "flagAlt": "우즈베키스탄 국기", "nameKo": "우즈베키스탄", "nameEn": "Uzbekistan", "continent": "아시아", "capital": "타슈켄트", "lat": 41.2995, "lng": 69.2401, "group": "K", "badges": ["첫 출전국", "중앙아시아 내륙국"]}, {"id": "COL", "flag": "🇨🇴", "flagImg": "https://flagcdn.com/co.svg", "flagAlt": "콜롬비아 국기", "nameKo": "콜롬비아", "nameEn": "Colombia", "continent": "남아메리카", "capital": "보고타", "lat": 4.711, "lng": -74.0721, "group": "K", "badges": ["안데스", "아마존"]}, {"id": "ENG", "flag": "🏴", "flagImg": "https://flagcdn.com/gb-eng.svg", "flagAlt": "잉글랜드 국기", "nameKo": "잉글랜드", "nameEn": "England", "continent": "유럽", "capital": "런던", "lat": 51.5074, "lng": -0.1278, "group": "L", "badges": ["축구 종주국", "추정 몸값 상위권"]}, {"id": "CRO", "flag": "🇭🇷", "flagImg": "https://flagcdn.com/hr.svg", "flagAlt": "크로아티아 국기", "nameKo": "크로아티아", "nameEn": "Croatia", "continent": "유럽", "capital": "자그레브", "lat": 45.815, "lng": 15.9819, "group": "L", "badges": ["작은 축구 강국", "아드리아해"]}, {"id": "GHA", "flag": "🇬🇭", "flagImg": "https://flagcdn.com/gh.svg", "flagAlt": "가나 국기", "nameKo": "가나", "nameEn": "Ghana", "continent": "아프리카", "capital": "아크라", "lat": 5.6037, "lng": -0.187, "group": "L", "badges": ["서아프리카", "카카오"]}, {"id": "PAN", "flag": "🇵🇦", "flagImg": "https://flagcdn.com/pa.svg", "flagAlt": "파나마 국기", "nameKo": "파나마", "nameEn": "Panama", "continent": "북아메리카", "capital": "파나마시티", "lat": 8.9824, "lng": -79.5199, "group": "L", "badges": ["파나마 운하", "지협"]}];
+const continents = ["아시아", "유럽", "아프리카", "북아메리카", "남아메리카", "오세아니아"];
+let focusContinent = "전체";
+let currentQuestion = null;
+let answered = false;
+let score = {correct:0,total:0};
+let soundEnabled = true;
+let audioCtx = null;
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+function sample(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function countryPool(){ return focusContinent === "전체" ? countries : countries.filter(c=>c.continent===focusContinent); }
+function uniqueOptions(correct, pool, n=4){
+  const list = [correct];
+  shuffle(pool).forEach(x=>{ if(x !== correct && !list.includes(x) && list.length<n) list.push(x); });
+  return shuffle(list);
+}
+function optionObj(label, value){ return {label, value}; }
+function latText(c){ const dir = c.lat >= 0 ? "북위" : "남위"; return `${dir} ${Math.abs(c.lat).toFixed(1)}°`; }
+function flagImg(c, className="") {
+  const img = c.flagImg ? `<img src="${c.flagImg}" alt="${c.flagAlt || c.nameKo + ' 국기'}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'emoji-fallback',textContent:'${c.flag}'}))">` : `<span class="emoji-fallback">${c.flag}</span>`;
+  return `<span class="${className}">${img}</span>`;
+}
+
+
+function getAudioContext(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+function playTone(ctx, freq, start, duration, type="sine", volume=.08){
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, start);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(start);
+  osc.stop(start + duration + 0.03);
+}
+function playAnswerSound(isCorrect){
+  if(!soundEnabled) return;
+  try{
+    const ctx = getAudioContext();
+    const t = ctx.currentTime + 0.01;
+    if(isCorrect){
+      // 딩-동-댕 느낌의 밝은 3음
+      playTone(ctx, 659.25, t, .13, "sine", .08);
+      playTone(ctx, 783.99, t + .13, .13, "sine", .08);
+      playTone(ctx, 987.77, t + .26, .22, "sine", .085);
+    }else{
+      // 삐- 느낌의 짧고 낮은 경고음
+      playTone(ctx, 196.00, t, .32, "square", .055);
+    }
+  }catch(e){
+    // 일부 브라우저에서 오디오 생성이 차단되면 조용히 넘어갑니다.
+  }
+}
+
+function makeContinentQuestion(){
+  const c = sample(countryPool());
+  return {type:"대륙 분류",tag:"green",text:`${c.flag} ${c.nameKo}은/는 어느 대륙의 참가국일까요?`,answer:c.continent,options:shuffle(continents),explain:`${c.nameKo}의 수도는 ${c.capital}이며, 월드컵 대륙 분류에서는 '${c.continent}' 참가국으로 볼 수 있습니다.`};
+}
+function makeCapitalQuestion(){
+  const c = sample(countryPool());
+  const capitals = countries.map(x=>x.capital).filter(Boolean);
+  return {type:"수도와 위치",tag:"gold",text:`${c.flag} ${c.nameKo}의 수도는 어디일까요?`,answer:c.capital,options:uniqueOptions(c.capital, capitals),explain:`${c.nameKo}의 수도는 ${c.capital}입니다. 수도 위치를 지도에서 찾아보면 나라의 대략적인 위치를 함께 익힐 수 있습니다.`};
+}
+function makeCountryByCapitalQuestion(){
+  const c = sample(countryPool());
+  return {type:"수도와 국가",tag:"gold",text:`수도 '${c.capital}'가 있는 월드컵 참가국은 어디일까요?`,answer:c.nameKo,options:uniqueOptions(c.nameKo, countries.map(x=>x.nameKo)),explain:`${c.capital}은/는 ${c.nameKo}의 수도입니다. 이 나라는 ${c.continent}에 속합니다.`};
+}
+function makeSameContinentQuestion(){
+  const c = sample(countryPool());
+  const same = countries.filter(x=>x.continent===c.continent && x.nameKo!==c.nameKo);
+  const diff = countries.filter(x=>x.continent!==c.continent);
+  const answer = sample(same).nameKo;
+  return {type:"대륙 연결",tag:"green",text:`${c.flag} ${c.nameKo}와 같은 대륙에 속한 참가국은?`,answer,options:shuffle([answer, ...shuffle(diff).slice(0,3).map(x=>x.nameKo)]),explain:`${c.nameKo}와 ${answer}은/는 모두 '${c.continent}'에 속합니다.`};
+}
+function makeFlagToCountryQuestion(){
+  const c = sample(countryPool());
+  return {
+    type:"국기 탐구", tag:"red",
+    flagPrompt:`<div class="flag-prompt">${flagImg(c)}</div>`,
+    text:"이 국기의 나라는 어디일까요?",
+    answer:c.nameKo,
+    options:uniqueOptions(c.nameKo, countries.map(x=>x.nameKo)),
+    explain:`이 국기는 ${c.nameKo}의 국기입니다. ${c.nameKo}은/는 ${c.continent}에 속하고 수도는 ${c.capital}입니다.`
+  };
+}
+function makeCountryToFlagQuestion(){
+  const c = sample(countryPool());
+  const pool = uniqueOptions(c.nameKo, countries.map(x=>x.nameKo)).map(name => countries.find(x=>x.nameKo===name));
+  return {
+    type:"국기 탐구", tag:"red",
+    text:`${c.nameKo}의 국기는 어느 것일까요?`,
+    answer:c.nameKo,
+    answerLabel:`${c.flag} ${c.nameKo}`,
+    options:shuffle(pool.map(x=>optionObj(`<span class="flag-choice">${flagImg(x)}</span>`, x.nameKo))),
+    explain:`${c.nameKo}의 국기는 ${c.flag} 입니다. 수도는 ${c.capital}입니다.`
+  };
+}
+function makeNorthernNotQuestion(){
+  const north = countries.filter(c=>c.lat >= 0);
+  const south = countries.filter(c=>c.lat < 0);
+  const answer = sample(south);
+  return {type:"적도와 위도",tag:"purple",text:"다음 중 북반구에 위치한 나라가 아닌 것은?",subHelp:"북반구는 적도보다 북쪽에 있는 지역입니다. 이 문제는 각 나라의 수도 위치를 기준으로 봅니다.",answer:answer.nameKo,options:shuffle([answer, ...shuffle(north).slice(0,3)]).map(c=>c.nameKo),explain:`${answer.nameKo}의 수도 ${answer.capital}은/는 ${latText(answer)}에 있어 남반구로 볼 수 있습니다.`};
+}
+function makeSouthernNotQuestion(){
+  const north = countries.filter(c=>c.lat >= 0);
+  const south = countries.filter(c=>c.lat < 0);
+  const answer = sample(north);
+  return {type:"적도와 위도",tag:"purple",text:"다음 중 남반구에 위치한 나라가 아닌 것은?",subHelp:"남반구는 적도보다 남쪽에 있는 지역입니다. 이 문제는 각 나라의 수도 위치를 기준으로 봅니다.",answer:answer.nameKo,options:shuffle([answer, ...shuffle(south).slice(0,3)]).map(c=>c.nameKo),explain:`${answer.nameKo}의 수도 ${answer.capital}은/는 ${latText(answer)}에 있어 북반구로 볼 수 있습니다.`};
+}
+function makeMostNorthQuestion(){
+  const opts = shuffle(countries).slice(0,4);
+  const answer = opts.reduce((a,b)=>a.lat>b.lat?a:b);
+  return {type:"위도 비교",tag:"purple",text:"다음 중 수도가 가장 북쪽에 있는 나라는?",subHelp:"위도 숫자가 북쪽으로 갈수록 커집니다. 북위는 적도보다 북쪽 위치를 뜻합니다.",answer:answer.nameKo,options:shuffle(opts.map(c=>c.nameKo)),explain:`${answer.nameKo}의 수도 ${answer.capital}은/는 ${latText(answer)}로, 보기 중 가장 북쪽에 있습니다.`};
+}
+function makeEquatorNearQuestion(){
+  const opts = shuffle(countries).slice(0,4);
+  const answer = opts.reduce((a,b)=>Math.abs(a.lat)<Math.abs(b.lat)?a:b);
+  return {type:"적도와 위도",tag:"purple",text:"다음 중 수도가 적도에 가장 가까운 나라는?",subHelp:"적도는 위도 0°입니다. 위도의 절댓값이 0에 가까울수록 적도에 가깝습니다.",answer:answer.nameKo,options:shuffle(opts.map(c=>c.nameKo)),explain:`${answer.nameKo}의 수도 ${answer.capital}은/는 ${latText(answer)}로, 보기 중 적도에 가장 가깝습니다.`};
+}
+function makeHostQuestion(){
+  const q = sample([
+    {text:"2026 월드컵을 공동 개최하는 세 나라는?",answer:"미국·캐나다·멕시코",options:["미국·캐나다·멕시코","브라질·아르헨티나·우루과이","스페인·포르투갈·모로코","한국·일본·중국"],explain:"2026 월드컵은 미국, 캐나다, 멕시코가 함께 개최하는 첫 3개국 공동 개최 월드컵입니다."},
+    {text:"2026 월드컵 개최국 중 가장 북쪽에 넓게 위치한 나라는?",answer:"캐나다",options:["캐나다","멕시코","파나마","카타르"],explain:"캐나다는 북아메리카 북쪽에 넓게 위치한 국가입니다."},
+    {text:"2026 월드컵 개최국 중 스페인어권 문화와 깊게 연결된 나라는?",answer:"멕시코",options:["멕시코","캐나다","스코틀랜드","일본"],explain:"멕시코는 북아메리카에 위치하지만 라틴아메리카 문화권과도 깊게 연결됩니다."}
+  ]);
+  return {type:"개최국 탐구", tag:"red", ...q};
+}
+function makeQuestion(){
+  // v29 비율 조정
+  // 국기 문제는 재미 요소로 유지하되, 너무 자주 나오지 않게 줄였습니다.
+  // 대륙 분류와 같은 대륙 국가 찾기 문제를 더 자주 나오게 조정했습니다.
+  const flagWeighted = [
+    makeFlagToCountryQuestion,
+    makeCountryToFlagQuestion,
+    makeFlagToCountryQuestion
+  ];
+  const continentWeighted = [
+    makeContinentQuestion,
+    makeSameContinentQuestion,
+    makeContinentQuestion,
+    makeSameContinentQuestion,
+    makeSameContinentQuestion,
+    makeContinentQuestion
+  ];
+  const locationWeighted = [
+    makeCapitalQuestion,
+    makeCountryByCapitalQuestion
+  ];
+  const geoLight = [
+    makeNorthernNotQuestion,
+    makeEquatorNearQuestion
+  ];
+  if(focusContinent !== "전체") {
+    return sample(continentWeighted.concat(locationWeighted).concat(flagWeighted))();
+  }
+  return sample(continentWeighted.concat(locationWeighted).concat(flagWeighted).concat(geoLight).concat([makeHostQuestion]))();
+}
+function renderQuestion(){
+  currentQuestion = makeQuestion();
+  answered = false;
+  document.getElementById("flagPrompt").innerHTML = currentQuestion.flagPrompt || "";
+  document.getElementById("qMeta").innerHTML = `<span class="tag ${currentQuestion.tag || ""}">${currentQuestion.type}</span><span class="tag">사회·세계지리</span>`;
+  document.getElementById("questionText").textContent = currentQuestion.text;
+  document.getElementById("subHelp").textContent = currentQuestion.subHelp || "";
+  const options = document.getElementById("options");
+  options.innerHTML = "";
+  currentQuestion.options.forEach(opt=>{
+    const value = typeof opt === "string" ? opt : opt.value;
+    const label = typeof opt === "string" ? opt : opt.label;
+    const b = document.createElement("button");
+    b.className = "option";
+    b.dataset.value = value;
+    b.innerHTML = label;
+    b.onclick = () => chooseAnswer(b, value);
+    options.appendChild(b);
+  });
+  document.getElementById("feedback").textContent = "정답을 고르면 설명이 나타납니다.";
+}
+function chooseAnswer(btn, value){
+  if(answered) return;
+  answered = true;
+  score.total++;
+  const correct = value === currentQuestion.answer;
+  playAnswerSound(correct);
+  if(correct) score.correct++;
+  [...document.querySelectorAll(".option")].forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.value === currentQuestion.answer) b.classList.add("correct");
+  });
+  if(!correct) btn.classList.add("wrong");
+  const answerLabel = currentQuestion.answerLabel || currentQuestion.answer;
+  document.getElementById("feedback").innerHTML = correct
+    ? `정답입니다!<br>${currentQuestion.explain}`
+    : `아쉬워요. 정답은 <strong>${answerLabel}</strong>입니다.<br>${currentQuestion.explain}`;
+  updateScore();
+}
+function updateScore(){
+  document.getElementById("scoreCorrect").textContent = score.correct;
+  document.getElementById("scoreTotal").textContent = score.total;
+  document.getElementById("focusLabel").textContent = focusContinent;
+}
+function renderContinents(){
+  const wrap = document.getElementById("continentList");
+  wrap.innerHTML = "";
+  ["전체", ...continents].forEach(cont=>{
+    const btn = document.createElement("button");
+    btn.className = "continent-chip" + (focusContinent===cont ? " active" : "");
+    btn.innerHTML = `<span>${cont}</span><span class="arrow">탐구 →</span>`;
+    btn.onclick = () => {
+      focusContinent = cont;
+      renderContinents();
+      renderExplore();
+      updateScore();
+      renderQuestion();
+      document.getElementById("missionBox").textContent = cont === "전체"
+        ? "전체 참가국에서 무작위로 문제가 나옵니다. 대륙 관련 문제가 더 자주 나오고, 국기 문제와 적도·위도 문제는 적당히 섞여 나옵니다."
+        : `${cont} 참가국 중심으로 문제가 나옵니다. 이 대륙의 국가 이름, 국기, 수도, 위치를 집중 탐구해 보세요.`;
+    };
+    wrap.appendChild(btn);
+  });
+}
+function renderExplore(){
+  const grid = document.getElementById("exploreGrid");
+  const list = focusContinent === "전체" ? continents : [focusContinent];
+  grid.innerHTML = list.map(cont=>{
+    const names = countries.filter(c=>c.continent===cont).map(c=>`${c.flag} ${c.nameKo}`).join(", ");
+    return `<div class="explore-card"><b>${cont} 참가국</b>${names}</div>`;
+  }).join("");
+}
+document.getElementById("nextBtn").onclick = renderQuestion;
+document.getElementById("resetScoreBtn").onclick = () => {
+  score = {correct:0,total:0};
+  updateScore();
+  document.getElementById("feedback").textContent = "점수를 초기화했습니다. 새 문제를 풀어 보세요.";
+};
+document.getElementById("soundToggleBtn").onclick = () => {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById("soundToggleBtn");
+  btn.textContent = soundEnabled ? "소리 켜짐" : "소리 꺼짐";
+  btn.classList.toggle("sound-off", !soundEnabled);
+};
+renderContinents();
+renderExplore();
+updateScore();
+renderQuestion();
+</script>
+</body>
+</html>
